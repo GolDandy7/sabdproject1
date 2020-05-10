@@ -5,20 +5,19 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
-import java.util.Date;
 import java.util.Locale;
 
 
 public class Outlet implements Serializable {
 
     private String data;
-    private String guariti;
-    private String tamponi;
+    private String healed;
+    private String swabs;
 
     public Outlet(String data, String guariti, String tamponi) {
         this.data = data;
-        this.guariti = guariti;
-        this.tamponi = tamponi;
+        this.healed = guariti;
+        this.swabs = tamponi;
 
     }
 
@@ -41,17 +40,13 @@ public class Outlet implements Serializable {
         WeekFields weekFields = WeekFields.of(Locale.getDefault());
         int week = date.get(weekFields.weekOfWeekBasedYear());
         String w= "W"+week;
-
-
         return w;
-
-
     }
 
-    public Integer getGuariti() {
+    public Integer getHealed() {
         int guar;
         try {
-            guar = Integer.parseInt(guariti);
+            guar = Integer.parseInt(healed);
         }
         catch (NumberFormatException e)
         {
@@ -60,10 +55,10 @@ public class Outlet implements Serializable {
         return guar;
     }
 
-    public Integer getTamponi() {
+    public Integer getSwabs() {
         int tamp;
         try {
-            tamp = Integer.parseInt(tamponi);
+            tamp = Integer.parseInt(swabs);
         }
         catch (NumberFormatException e)
         {
@@ -77,7 +72,7 @@ public class Outlet implements Serializable {
     @Override
     public String toString(){
         try {
-            return getWeek() + ", " + getGuariti() + ", " + getTamponi();
+            return getWeek() + ", " + getHealed() + ", " + getSwabs();
         } catch (ParseException e) {
             e.printStackTrace();
             return "";

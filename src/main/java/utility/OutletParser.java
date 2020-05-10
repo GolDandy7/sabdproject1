@@ -1,8 +1,7 @@
 package utility;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 public class OutletParser {
+
     public static Outlet parseCSV(String csvLine) {
 
         Outlet outlet = null;
