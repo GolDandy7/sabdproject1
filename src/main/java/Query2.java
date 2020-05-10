@@ -6,6 +6,7 @@ import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFunction;
 import org.glassfish.jersey.internal.util.collection.StringIgnoreCaseKeyComparator;
 import scala.Tuple2;
+import utility.RegionParser;
 import utility.State;
 import utility.StateParser;
 import utility.TrendLine;
@@ -17,6 +18,7 @@ import java.util.regex.Pattern;
 public class Query2 {
 
     private static String pathToFile = "src/dataset/covid19datiinternazionali_cleaned.csv";
+    private static final String pathregion= "src/dataset/country_region.csv";
     private static Pattern SPACE = Pattern.compile(" ");
 
     public static void main(String[] args) {
@@ -43,6 +45,16 @@ public class Query2 {
         for(State i:rdd_state.collect())
             System.out.println(i);*/
 
+        //RDD del csv region nostro
+        JavaRDD<String> rddregion = sc.textFile(pathregion);
+        String firstRowRegion = rddregion.first();
+        JavaRDD<String> rdd_regio_withoutFirst= rddregion.filter(x->!x.equals(firstRowRegion));
+        JavaPairRDD<String,String> rddPair_region = rdd_regio_withoutFirst.mapToPair(x-> new Tuple2<>(RegionParser.parseCSVRegion(x).getCountry(), RegionParser.parseCSVRegion(x).getRegion()));
+
+
+
+        //fine RDD region
+
         JavaPairRDD<Double, String> pairRDD_trend = rdd_state.
                 mapToPair(new PairFunction<State, Double, String>() {
                     @Override
@@ -50,17 +62,17 @@ public class Query2 {
 
                         ArrayList<Double> doubles = new ArrayList<>();
                         for (int i = 0; i < state.getSick_number().size(); i++)
-                            doubles.add(Double.parseDouble(state.getSick_number().get(i)));
+                            doubles.add(Double.valueOf(state.getSick_number().get(i)));
                         double slope = TrendLine.getSlope(doubles, state.getSick_number().size());
                         return new Tuple2<>(slope, state.getCountry());
                     }
                 });
 
 
-        List<Tuple2<Double, String>> pairTop = pairRDD_trend.sortByKey(false).take(100);
-        /*for (Tuple2<Double, String> i : pairTop){
-            System.out.println(i._2);
-        }*/
+        List<Tuple2<Double, String>> pairTop = pairRDD_trend.sortByKey(false).take(10);
+        for (Tuple2<Double, String> l : pairTop){
+            System.out.println(l);
+        }
         JavaPairRDD<String,State> result1= rdd_state.mapToPair(x-> new Tuple2<>(x.getCountry(),x));
 
         JavaPairRDD <String, State> resultfilter= result1.filter(new Function<Tuple2<String, State>, Boolean>() {
@@ -74,10 +86,17 @@ public class Query2 {
             }
         });
 
-        /*for (Tuple2<String, State> i : resultfilter.collect()){
-            System.out.println(i);
-        }*/
-        JavaPairRDD<String,ArrayList<Double>> continente= resultfilter.mapToPair(new PairFunction<Tuple2<String, State>, String, ArrayList<Double>>() {
+        for (Tuple2<String, State> j : resultfilter.collect()){
+            System.out.println(j);}
+
+
+        JavaPairRDD<String, Tuple2<State, String>> rdd_continents = resultfilter.join(rddPair_region);
+
+        JavaPairRDD <String, ArrayList<Integer>> rdd_region_final= rdd_continents.mapToPair(x-> new Tuple2<>(x._2()._2(), x._2()._1().getSick_number()));
+        /*for(Tuple2<String, ArrayList<Integer>> i: rdd_region_final.collect())
+            System.out.println(i._2());*/
+
+       /* JavaPairRDD<String,ArrayList<Double>> continente= resultfilter.mapToPair(new PairFunction<Tuple2<String, State>, String, ArrayList<Double>>() {
             @Override
             public Tuple2<String, ArrayList<Double>> call(Tuple2<String, State> stringStateTuple2) throws Exception {
                 String Continente;
@@ -85,7 +104,7 @@ public class Query2 {
                 return null;
             }
         });
-
+*/
 
         //TODO: INVERTIRE CHIAVE VALORE
             /*for (Tuple2<Double, String> j : pairTop)

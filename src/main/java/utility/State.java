@@ -9,17 +9,17 @@ public class State implements Serializable {
     private String country;
     private String lon;
     private String lat;
-    private ArrayList<String> sick_number;
+    private ArrayList<Integer> sick_number;
 
     public String getState() {
         return state;
     }
 
-    public State(String state, String country, String lon, String lat, ArrayList<String> sick_number) {
+    public State(String state, String country, ArrayList<Integer> sick_number) {
         this.state = state;
         this.country=country;
-        this.lon = lon;
-        this.lat = lat;
+//        this.lon = lon;
+//        this.lat = lat;
         this.sick_number = sick_number;
     }
 
@@ -27,17 +27,17 @@ public class State implements Serializable {
         return state;
     }
 
-    public Float getLon() {
-        return Float.parseFloat(lon);
-    }
+//    public Float getLon() {
+//        return Float.parseFloat(lon);
+//    }
+//
+//    public Float getLat() {
+//        return Float.parseFloat(lat);
+//    }
 
-    public Float getLat() {
-        return Float.parseFloat(lat);
-    }
 
 
-
-    public ArrayList<String> getSick_number() {
+    public ArrayList<Integer> getSick_number() {
         return sick_number;
     }
 
@@ -46,8 +46,6 @@ public class State implements Serializable {
         return "State{" +
                 "state'=" + state + '\'' +
                 "country='" + country + '\'' +
-                ", lon='" + lon + '\'' +
-                ", lat='" + lat + '\'' +
                 ", sick_number='" + sick_number + '\'' +
                 '}';
     }
