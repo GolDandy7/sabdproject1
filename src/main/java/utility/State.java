@@ -5,20 +5,26 @@ import java.util.ArrayList;
 
 public class State implements Serializable {
 
+    private String state;
     private String country;
     private String lon;
     private String lat;
     private ArrayList<String> sick_number;
 
-    public State(String country, String lon, String lat, ArrayList<String> sick_number) {
-        this.country = country;
+    public String getState() {
+        return state;
+    }
+
+    public State(String state, String country, String lon, String lat, ArrayList<String> sick_number) {
+        this.state = state;
+        this.country=country;
         this.lon = lon;
         this.lat = lat;
         this.sick_number = sick_number;
     }
 
     public String getCountry() {
-        return country;
+        return state;
     }
 
     public Float getLon() {
@@ -38,6 +44,7 @@ public class State implements Serializable {
     @Override
     public String toString() {
         return "State{" +
+                "state'=" + state + '\'' +
                 "country='" + country + '\'' +
                 ", lon='" + lon + '\'' +
                 ", lat='" + lat + '\'' +

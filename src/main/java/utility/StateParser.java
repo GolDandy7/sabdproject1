@@ -19,6 +19,7 @@ public class StateParser {
        // System.out.println("Dimensione lista:"+sick_number.size());
         state = new State(
                 csvValues[x], // stato
+                csvValues [1], //country
                 csvValues[2], // lat
                 csvValues[3], // lon
                 sick_number
@@ -54,7 +55,8 @@ public class StateParser {
 
         }
         state = new State(
-                csvValues[x], // stato
+                csvValues[x], // stato se c'è solo country metti anche qui country
+                csvValues[1], // country
                 csvValues[2], // lat
                 csvValues[3], // lon
                 sick_number
