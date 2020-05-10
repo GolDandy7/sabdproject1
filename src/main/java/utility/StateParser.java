@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class StateParser {
 
-    public static State parseCSV(String csvLine,ArrayList<String> date) {
+    public static State parseCSV(String csvLine) {
 
         State state = null;
         Integer x=0;
@@ -15,12 +15,12 @@ public class StateParser {
         for(int i=4;i<csvValues.length;i++){
             sick_number.add(csvValues[i]);
         }
-        System.out.println("Dimensione lista:"+sick_number.size());
+        //prova
+       // System.out.println("Dimensione lista:"+sick_number.size());
         state = new State(
                 csvValues[x], // stato
                 csvValues[2], // lat
                 csvValues[3], // lon
-                date,
                 sick_number
         );
 
@@ -30,7 +30,7 @@ public class StateParser {
     //TODO: non funge perchè c'è uno state contentente la virgola nel nome ->uso nifi
     //Bonaire, Sint Eustatius and Saba in State
     // Korea, South in Country
-    public static State parseCSV2(String csvLine,ArrayList<String> date) {
+    public static State parseCSV2(String csvLine) {
 
         State state = null;
         Integer x=0,y,z,r;
@@ -46,9 +46,9 @@ public class StateParser {
                 y=Integer.parseInt(csvValues[i]);
                 z=Integer.parseInt(csvValues[(i-1)]);
                 r=y-z;
-                System.out.println("y:"+y+" e z:"+z);
+               // System.out.println("y:"+y+" e z:"+z);
                 sick_number.add(String.valueOf(r).toString());
-                System.out.println("differenza yz:"+r);
+                //System.out.println("differenza yz:"+r);
             }
             sick_number.add(csvValues[i]);
 
@@ -57,7 +57,6 @@ public class StateParser {
                 csvValues[x], // stato
                 csvValues[2], // lat
                 csvValues[3], // lon
-                date,
                 sick_number
         );
 

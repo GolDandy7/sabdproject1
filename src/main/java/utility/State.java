@@ -8,14 +8,12 @@ public class State implements Serializable {
     private String country;
     private String lon;
     private String lat;
-    private ArrayList<String> date;
     private ArrayList<String> sick_number;
 
-    public State(String country, String lon, String lat, ArrayList<String> date, ArrayList<String> sick_number) {
+    public State(String country, String lon, String lat, ArrayList<String> sick_number) {
         this.country = country;
         this.lon = lon;
         this.lat = lat;
-        this.date = date;
         this.sick_number = sick_number;
     }
 
@@ -31,9 +29,7 @@ public class State implements Serializable {
         return Float.parseFloat(lat);
     }
 
-    public ArrayList<String> getDate() {
-        return date;
-    }
+
 
     public ArrayList<String> getSick_number() {
         return sick_number;
@@ -45,7 +41,6 @@ public class State implements Serializable {
                 "country='" + country + '\'' +
                 ", lon='" + lon + '\'' +
                 ", lat='" + lat + '\'' +
-                ", date='" + date + '\'' +
                 ", sick_number='" + sick_number + '\'' +
                 '}';
     }
