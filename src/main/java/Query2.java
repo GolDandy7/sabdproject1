@@ -121,6 +121,7 @@ public class Query2 {
                 });
 
         ArrayList<String> week=StateParser.convertDatetoWeek(date_names);
+        // contiene <continente,week>,somma valore per quel giorno per continente
         JavaPairRDD<Tuple2<String,String>,Integer> pair_flat=pairRDD_sum.
                 flatMapToPair(new PairFlatMapFunction<Tuple2<String, ArrayList<Integer>>, Tuple2<String, String>, Integer>() {
             @Override
@@ -149,17 +150,20 @@ public class Query2 {
         JavaPairRDD<Tuple2<String,String>,Integer>reduced_flat= pair_flat.reduceByKey((a,b)->a+b);
         JavaPairRDD<Tuple2<String, String>, Tuple2<Integer, Integer>> joinres = reduced_flat.join(count);
         JavaPairRDD <Tuple2<String,String>,Double> average= joinres.mapToPair(x-> new Tuple2<>(x._1(),Double.parseDouble(String.valueOf(x._2()._1()/x._2()._2()))));
-        JavaPairRDD<Tuple2<String, String>, Tuple2<Tuple2<Integer, Integer>, Double>> result_final = (arrayMax.join(arrayMin)).join(average);
 
-       for(Tuple2<Tuple2<String, String>, Tuple2<Tuple2<Integer, Integer>, Double>> r: result_final.collect()){
-           System.out.println(r);
-       }
-        /*for(Tuple2<Tuple2<String,String>,Integer> k:reduced_flat.collect()){
-            System.out.println(k);
-        }*/
-        //pair_flat.reduceByKey(a->a.)
+        JavaPairRDD<Tuple2<String,String>,Double> pairRDD_dev_std=average.join(pair_flat).
+                mapToPair(x->new Tuple2<>(x._1(),Math.pow(x._2()._1()-x._2()._2(),2))).
+                reduceByKey((a,b)->a+b).
+                join(count).
+                mapToPair(x->new Tuple2<>(x._1(),Math.sqrt(x._2()._1()/x._2()._2())));
+
+        for(Tuple2<Tuple2<String,String>,Double> pippo: pairRDD_dev_std.collect()){
+            System.out.println(pippo);
+        }
+        JavaPairRDD<Tuple2<String, String>, Tuple2<Tuple2<Tuple2<Integer, Integer>, Double>, Double>> result_final =
+                (arrayMax.join(arrayMin)).join(average).join(pairRDD_dev_std);
+
         sc.stop();
-
 
     }
 }
