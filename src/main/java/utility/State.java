@@ -7,13 +7,10 @@ public class State implements Serializable {
 
     private String state;
     private String country;
-    private String lon;
-    private String lat;
+    //private String lon;
+    //private String lat;
     private ArrayList<Integer> sick_number;
 
-    public String getState() {
-        return state;
-    }
 
     public State(String state, String country, ArrayList<Integer> sick_number) {
         this.state = state;
@@ -24,8 +21,13 @@ public class State implements Serializable {
     }
 
     public String getCountry() {
+        return country;
+    }
+
+    public String getState() {
         return state;
     }
+
 
 //    public Float getLon() {
 //        return Float.parseFloat(lon);

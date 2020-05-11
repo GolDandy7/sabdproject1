@@ -50,6 +50,8 @@ Cocos (Keeling) Islands,Oceania
 Colombia,Americas
 Comoros,Africa
 Congo,Africa
+Congo (Brazzaville),Africa
+Congo (Kinshasa),Africa
 Congo Democratic Republic of the,Africa
 Cook Islands,Oceania
 Costa Rica,Americas
@@ -119,6 +121,7 @@ Kenya,Africa
 Kiribati,Oceania
 Korea ,Asia
 Korea South,Asia
+Kosovo,Europe
 Kuwait,Asia
 Kyrgyzstan,Asia
 Lao People's Democratic Republic,Asia
@@ -188,7 +191,7 @@ Saint Barthélemy,Americas
 Saint Helena Ascension and Tristan da Cunha,Africa
 Saint Kitts and Nevis,Americas
 Saint Lucia,Americas
-Saint Martin (French part),Americas
+Saint Martin,Americas
 Saint Pierre and Miquelon,Americas
 Saint Vincent and the Grenadines,Americas
 Samoa,Oceania
@@ -200,7 +203,7 @@ Serbia,Europe
 Seychelles,Africa
 Sierra Leone,Africa
 Singapore,Asia
-Sint Maarten (Dutch part),Americas
+Sint Maarten,Americas
 Slovakia,Europe
 Slovenia,Europe
 Solomon Islands,Oceania
@@ -239,10 +242,10 @@ United States Minor Outlying Islands,Oceania
 Uruguay,Americas
 Uzbekistan,Asia
 Vanuatu,Oceania
-Venezuela (Bolivarian Republic of),Americas
+Venezuela,Americas
 Viet Nam,Asia
-Virgin Islands (British),Americas
-Virgin Islands (U.S.),Americas
+Virgin Islands,Americas
+Virgin Islands,Americas
 Wallis and Futuna,Oceania
 Western Sahara,Africa
 Yemen,Asia
