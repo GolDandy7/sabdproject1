@@ -72,12 +72,11 @@ public class Query2 {
                 });
 
 
-        List<Tuple2<Double, String>> pairTop = pairRDD_trend.sortByKey(false).take(100);
-        System.out.println("Stampa pairtop");
-        /*for (Tuple2<Double, String> l : pairTop){
-            System.out.println(l._2());
-        }*/
-        System.out.println("Dimensione pairtop:"+pairTop.size());
+        List<Tuple2<Double, String>> pairTop = pairRDD_trend.sortByKey(false).take(2);
+
+
+
+
         JavaPairRDD<String,State> result1= rdd_state.mapToPair(x-> new Tuple2<>(x.getState(),x));
         JavaPairRDD <String, State> resultfilter= result1.filter(new Function<Tuple2<String, State>, Boolean>() {
             @Override
@@ -90,9 +89,9 @@ public class Query2 {
                 return false;
             }
         });
-        System.out.println("Dimensione di result filter:"+resultfilter.collect().size());
-       /* for (Tuple2<String, State> j : resultfilter.collect()){
-            System.out.println(j);}*/
+
+       for (Tuple2<String, State> j : resultfilter.collect()){
+            System.out.println(j);}
 
         JavaPairRDD<String,State> pairRDD_state_country=resultfilter.mapToPair(x->new Tuple2<>(x._2().getCountry(),x._2()));
         /*System.out.println("Dimensione di pairddd state country dopo join:"+pairRDD_state_country.collect().size());
@@ -138,15 +137,26 @@ public class Query2 {
             }
         });
 
-       /* for( Tuple2<Tuple2<String,String>,Integer>i: pair_flat.collect()){
-            System.out.println(i);
-        }
-*/
-        JavaPairRDD<Tuple2<String,String>,Integer>reduced_flat= pair_flat.reduceByKey((a,b)->a+b);
 
-        for(Tuple2<Tuple2<String,String>,Integer> k:reduced_flat.collect()){
+      /* for( Tuple2<Tuple2<String,String>,Integer>i: pair_flat.collect()){
+            System.out.println(i);
+        }*/
+
+        JavaPairRDD<Tuple2<String, String>, Integer> unitario= pair_flat.mapToPair(x-> new Tuple2<>(x._1(),1));
+        JavaPairRDD <Tuple2<String, String>, Integer> count= unitario.reduceByKey((a,b)-> a+b);
+        JavaPairRDD<Tuple2<String, String>,Integer> arrayMax= pair_flat.reduceByKey((a,b)->Math.max(a,b));
+        JavaPairRDD<Tuple2<String, String>,Integer> arrayMin= pair_flat.reduceByKey((a,b)->Math.min(a,b));
+        JavaPairRDD<Tuple2<String,String>,Integer>reduced_flat= pair_flat.reduceByKey((a,b)->a+b);
+        JavaPairRDD<Tuple2<String, String>, Tuple2<Integer, Integer>> joinres = reduced_flat.join(count);
+        JavaPairRDD <Tuple2<String,String>,Double> average= joinres.mapToPair(x-> new Tuple2<>(x._1(),Double.parseDouble(String.valueOf(x._2()._1()/x._2()._2()))));
+        JavaPairRDD<Tuple2<String, String>, Tuple2<Tuple2<Integer, Integer>, Double>> result_final = (arrayMax.join(arrayMin)).join(average);
+
+       for(Tuple2<Tuple2<String, String>, Tuple2<Tuple2<Integer, Integer>, Double>> r: result_final.collect()){
+           System.out.println(r);
+       }
+        /*for(Tuple2<Tuple2<String,String>,Integer> k:reduced_flat.collect()){
             System.out.println(k);
-        }
+        }*/
         //pair_flat.reduceByKey(a->a.)
         sc.stop();
 
