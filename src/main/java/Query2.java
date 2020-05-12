@@ -160,6 +160,7 @@ public class Query2 {
         for(Tuple2<Tuple2<String,String>,Double> pippo: pairRDD_dev_std.collect()){
             System.out.println(pippo);
         }
+
         JavaPairRDD<Tuple2<String, String>, Tuple2<Tuple2<Tuple2<Integer, Integer>, Double>, Double>> result_final =
                 (arrayMax.join(arrayMin)).join(average).join(pairRDD_dev_std);
 
