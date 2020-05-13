@@ -83,6 +83,8 @@ public class StateParser {
         }
         return dates_week;
     }
+
+    //converte la data nel mese corrispettivo restituendo un array di mesi da un array di date
     public static ArrayList<Month> convertDatetoMonth(ArrayList<String> date){
         ArrayList<Month> dates_month=new ArrayList<>();
         for(int i=0;i<date.size();i++) {
@@ -95,12 +97,15 @@ public class StateParser {
         return dates_month;
     }
 
+    //Ritorna il numero del giorno
     public static Integer pareserDate(String date){
 
         String[] d=date.split("/");
 
         return Integer.parseInt(d[1]);
     }
+
+    //Conta il numero di presente in ogni mese
     public static ArrayList<Integer> contagiorni (ArrayList<Month> x){
         ArrayList<Integer> val= new ArrayList<>();
         int cont=0;
@@ -122,6 +127,23 @@ public class StateParser {
 
         val.add(cont);
         return val;
+    }
+
+    public static ArrayList<String> raggruppa_mesi(ArrayList<Month> x){
+        ArrayList<String> y= new ArrayList<>();
+       String z= String.valueOf(x.get(0));
+       y.add(String.valueOf(x.get(0)));
+        for (int i=0; i<x.size();i++){
+            if(String.valueOf(x.get(i)).equals(z)){
+                continue;
+            }else {
+                y.add(String.valueOf(x.get(i)));
+                z= String.valueOf(x.get(i));
+
+            }
+
+        }
+        return y;
     }
 
 }

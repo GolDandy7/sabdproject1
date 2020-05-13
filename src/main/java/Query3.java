@@ -1,15 +1,10 @@
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 import scala.Tuple2;
-import scala.Tuple3;
-import scala.Tuple4;
-import scala.math.Integral;
 import utility.State;
 import utility.StateParser;
 import utility.TrendLine;
@@ -41,7 +36,7 @@ public class Query3 {
 
         ArrayList<Month> month_array= StateParser.convertDatetoMonth(date_names);
         ArrayList<Integer> numerogiorni=StateParser.contagiorni(month_array);
-        /*for(int i=0; i<month_array.size();i++){
+      /*  for(int i=0; i<month_array.size();i++){
             System.out.println(month_array.get(i));
         }
         for(int i=0; i<numerogiorni.size();i++){
@@ -52,40 +47,82 @@ public class Query3 {
 
         JavaPairRDD<String, ArrayList<Integer>> state_without_month= rdd_state.mapToPair(x-> new Tuple2<>(x.getState(),x.getSick_number()));
 
-        for(Tuple2<String, ArrayList<Integer>> i:state_without_month.collect()){
-            if(i._1().equals("new south wales"))
-                System.out.println(i);
-        }
+       /* for(Tuple2<String, ArrayList<Integer>> i:state_without_month.collect()){
 
+                System.out.println(i);
+        }*/
+
+        // Tupla2<Italia, {0.0; 3.1; 0.3; 2.8, 0.23}>
         JavaPairRDD<String, ArrayList<Double>> arrayState= state_without_month.mapToPair(new PairFunction<Tuple2<String, ArrayList<Integer>>, String, ArrayList<Double>>() {
             @Override
             public Tuple2<String, ArrayList<Double>> call(Tuple2<String, ArrayList<Integer>> temp) throws Exception {
                 ArrayList<Double> doubles =new ArrayList<>();
+                ArrayList<Double> array_temp= new ArrayList<>();
+
                 int l;
-                double slope;
-                for (int i = 0; i < temp._2().size(); i++){
+                Double slope;
+
+                for (int i = 0; i<temp._2().size(); i++){
                     // month_array=[10,29,30,31,6]
                     for (int j=0; j<numerogiorni.size();j++){
-                       ArrayList<Double> pippo= new ArrayList<>();
                         for( l=i; l<(numerogiorni.get(j))+i; l++){
-                            pippo.add(Double.parseDouble(String.valueOf(temp._2().get(l))));
+                            array_temp.add(Double.parseDouble(String.valueOf(temp._2().get(l))));
                         }
-                        i=l;
-                        slope=TrendLine.getSlope(pippo,pippo.size());
+                        slope=TrendLine.getSlope(array_temp,array_temp.size());
                         doubles.add(slope);
-                        pippo.clear();
+                        array_temp.clear();
+                        i=l;
                     }
                 }
 
                 return new Tuple2<>(temp._1(),doubles);
             }
+        }).sortByKey();
+
+
+        //stampa prova
+        /*for(Tuple2<String, ArrayList<Double>> i:arrayState.collect()){
+
+                System.out.println(i);
+        }*/
+
+
+
+        ArrayList<String> mesi= StateParser.raggruppa_mesi(month_array);
+
+        //prova stampa mesi
+       /* for(int j=0; j<mesi.size();j++){
+            System.out.println(mesi.get(j));
+        }*/
+
+
+        JavaPairRDD<String, Tuple2<String,Double>> mese_trend= arrayState.flatMapToPair(new PairFlatMapFunction<Tuple2<String, ArrayList<Double>>, String, Tuple2<String, Double>>() {
+            @Override
+            public Iterator<Tuple2<String, Tuple2<String, Double>>> call(Tuple2<String, ArrayList<Double>> temp) throws Exception {
+                ArrayList<Tuple2<String,Tuple2<String,Double>>> array_list= new ArrayList<>();
+                for(int i=0; i<numerogiorni.size();i++){
+                    Tuple2<String, Tuple2<String,Double>> tupla= new Tuple2<>(
+                            mesi.get(i), new Tuple2<>(temp._1(),temp._2().get(i))
+                    );
+                    array_list.add(tupla);
+
+                }
+
+                return array_list.iterator();
+            }
         });
 
-        for(Tuple2<String, ArrayList<Double>> i:arrayState.collect()){
-            if(i._1().equals("new south wales"))
-                System.out.println(i);
+        for(Tuple2<String, Tuple2<String,Double>> i: mese_trend.collect()){
+            System.out.println(i);
         }
 
+
+        JavaPairRDD<String, Iterable<Tuple2<String, Double>>> raggruppamento_trend_mese = mese_trend.groupByKey();
+
+
+        for (Tuple2<String, Iterable<Tuple2<String, Double>>> i: raggruppamento_trend_mese.collect()){
+            System.out.println(i);
+        }
 
 
        /* JavaPairRDD<Tuple2<Month,String>, Tuple2<Integer, Integer>> single_state_with_month=
