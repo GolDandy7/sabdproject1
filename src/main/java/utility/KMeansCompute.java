@@ -3,14 +3,13 @@ package utility;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.mllib.clustering.KMeans;
-import org.apache.spark.mllib.linalg.Vectors$;
+import org.apache.spark.mllib.clustering.KMeansModel;
+import org.apache.spark.mllib.linalg.Vector;
 import scala.Tuple2;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.mllib.clustering.KMeansModel;
 
 import org.apache.spark.mllib.linalg.Vectors;
 import java.util.ArrayList;
-import java.util.Vector;
 
 public class KMeansCompute {
 
@@ -43,12 +42,25 @@ public class KMeansCompute {
             }
         });
 
+        JavaRDD<Vector> parsedouble = rdd.map(new Function<Tuple2<Double[], ArrayList<String>>, Vector>() {
+            @Override
+            public Vector call(Tuple2<Double[], ArrayList<String>> arrayListTuple2) throws Exception {
+                double[] values = new double[arrayListTuple2._1().length];
+                for (int i = 0; i < arrayListTuple2._1().length; i++) {
+                    values[i] = Double.parseDouble(String.valueOf(arrayListTuple2._1()[i]));
+                }
+                return Vectors.dense(values);
+            }
+        });
 
-        for(Tuple2<Double[], ArrayList<String>> pippo : rdd.collect()){
+        parsedouble.cache();
+        KMeansModel clusters = KMeans.train(parsedouble.rdd(), num_cluster, num_iterazioni);
+
+        /*for(Tuple2<Double[], ArrayList<String>> pippo : rdd.collect()){
             for(int index=0;index<pippo._1().length;index++)
                 System.out.println(pippo._1()[index]);
             System.out.println("\n");
-        }
+        }*/
 
         //JavaRDD<Vector<Double>> rdd_vector=rdd.map(x->x._1());
         //KMeansModel clusters = KMeans.train(,num_cluster,num_iterazioni);
