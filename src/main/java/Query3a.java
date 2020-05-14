@@ -99,8 +99,8 @@ public class Query3a {
          */
         for (int i = 1; i <= grouped.countByKey().size(); i++) {
             ArrayList<Tuple2<Double, String>> list_tuple = new ArrayList<>();
-            finalI = i;
-            Integer finalI1 = finalI;
+
+            Integer finalI1 = i;
             JavaPairRDD<Integer, Iterable<Tuple2<Double, String>>> pairdRR_month = result_grouped.filter(x -> x._1().equals(finalI1));
             JavaPairRDD<Double, String> class_month = pairdRR_month.
                     flatMapToPair(new PairFlatMapFunction<Tuple2<Integer, Iterable<Tuple2<Double, String>>>, Double, String>() {
@@ -149,8 +149,15 @@ public class Query3a {
 
         /*  for ( Tuple2<Integer, Iterable<Tuple2<Double, String>>>tupla4 : temp4.collect()) {
             System.out.println(tupla4);
+
+
 */
-            KMeansCompute.belongCluster(temp4);
+
+        KMeansCompute.belongCluster(temp4);
+       /* for(int j=1; j<=temp4.keys().collect().size();j++) {
+            Integer ter=j;
+            KMeansCompute.belongCluster(temp4.filter(x->x._1().equals(ter)));
+        }*/
         /*for(Tuple2<Integer, ArrayList<Tuple2<Double, String>>> tupla3:input2.collect()){
             System.out.println(tupla3);
         } */

@@ -1,5 +1,6 @@
 package KmeansMlibSpark;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.mllib.clustering.KMeans;
@@ -9,12 +10,16 @@ import scala.Tuple2;
 import org.apache.spark.api.java.JavaRDD;
 
 import org.apache.spark.mllib.linalg.Vectors;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class KMeansCompute {
 
     private static Integer num_cluster=4;
-    private static Integer num_iterazioni=20;
+    private static Integer num_iterazioni=10;
     public static void
     belongCluster(JavaPairRDD<Integer, Iterable<Tuple2<Double, String>>> integerIterableJavaPairRDD){
 
@@ -23,10 +28,13 @@ public class KMeansCompute {
 
         //MI SERVE PER LA UNION?
         JavaRDD<Integer> chiave = integerIterableJavaPairRDD.keys();
+
         /*//System.out.println(chiave.collect());
         for(Iterable<Tuple2<Double, String>> x:value_per_month.collect()){
             System.out.println("Dopo il .values:"+x);
         }*/
+
+
 
         //Mappo i valori dell'RDD in un RDD formato da array di valori e array di nomi degli stati conservandone l'ordine
         JavaRDD<Tuple2<Double[],ArrayList<String>>> rdd=value_per_month.
@@ -36,6 +44,7 @@ public class KMeansCompute {
             call(Iterable<Tuple2<Double, String>> tuple2s) throws Exception {
                 ArrayList<Double> doubles=new ArrayList<>();
                 ArrayList<String> strings=new ArrayList<>();
+
                 for(Tuple2<Double,String> temp:tuple2s){
                     doubles.add(temp._1());
                     strings.add(temp._2());
@@ -44,6 +53,16 @@ public class KMeansCompute {
                 Double [] temp=doubles.toArray(new Double[0]);
 
                 return new Tuple2<>(temp,strings);
+            }
+        });
+        JavaRDD<ArrayList<String>> parseString = rdd.map(new Function<Tuple2<Double[], ArrayList<String>>, ArrayList<String>>() {
+            @Override
+            public ArrayList<String> call(Tuple2<Double[], ArrayList<String>> input) throws Exception {
+                ArrayList<String> pippo=new ArrayList<>();
+                for (int i=0; i<input._1().length-1; i++)
+                    pippo.add(","+input._1()[i]);
+
+                return pippo;
             }
         });
 
@@ -60,7 +79,31 @@ public class KMeansCompute {
         });
 
         parsedouble.cache();
-        KMeansModel clusters = KMeans.train(parsedouble.rdd(), num_cluster, num_iterazioni);
+        for (Vector i:parsedouble.collect()){
+            System.out.println(i);
+        }
+
+
+
+     /*   KMeansModel clusters = KMeans.train(parsedouble.rdd(), num_cluster, num_iterazioni);
+
+        for (Vector center: clusters.clusterCenters()){
+            System.out.println("Cluster center for clusters: "+ (num_cluster++)+ ":" + center);
+        }*/
+       /* double cost= clusters.computeCost(parsedouble.rdd());
+        System.out.println("\nCosto "+ cost);
+        try{
+            FileUtils.forceDelete(new File("Kmeans"));
+
+        }
+        catch (FileNotFoundException e1) {
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        System.out.println("predic = "+  clusters.predict(parsedouble));*/
+
 
         /*for(Tuple2<Double[], ArrayList<String>> pippo : rdd.collect()){
             for(int index=0;index<pippo._1().length;index++)
