@@ -1,4 +1,4 @@
-package utility;
+package KmeansMlibSpark;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.Function;
@@ -18,12 +18,17 @@ public class KMeansCompute {
     public static void
     belongCluster(JavaPairRDD<Integer, Iterable<Tuple2<Double, String>>> integerIterableJavaPairRDD){
 
+        //Prendiamo i valori contenuti nel RDD
         JavaRDD<Iterable<Tuple2<Double, String>>> value_per_month = integerIterableJavaPairRDD.values();
+
+        //MI SERVE PER LA UNION?
         JavaRDD<Integer> chiave = integerIterableJavaPairRDD.keys();
         /*//System.out.println(chiave.collect());
         for(Iterable<Tuple2<Double, String>> x:value_per_month.collect()){
             System.out.println("Dopo il .values:"+x);
         }*/
+
+        //Mappo i valori dell'RDD in un RDD formato da array di valori e array di nomi degli stati conservandone l'ordine
         JavaRDD<Tuple2<Double[],ArrayList<String>>> rdd=value_per_month.
                 map(new Function<Iterable<Tuple2<Double, String>>, Tuple2<Double[], ArrayList<String>>>() {
             @Override
@@ -41,6 +46,7 @@ public class KMeansCompute {
                 return new Tuple2<>(temp,strings);
             }
         });
+
 
         JavaRDD<Vector> parsedouble = rdd.map(new Function<Tuple2<Double[], ArrayList<String>>, Vector>() {
             @Override

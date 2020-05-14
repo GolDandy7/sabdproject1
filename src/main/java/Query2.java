@@ -7,9 +7,9 @@ import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 import scala.Tuple2;
-import utility.RegionParser;
-import utility.State;
-import utility.StateParser;
+import Parser.RegionParser;
+import Parser.State;
+import Parser.StateParser;
 import utility.TrendLine;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package utility;
+package Parser;
 
 public class OutletParser {
 

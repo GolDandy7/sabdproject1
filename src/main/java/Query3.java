@@ -5,14 +5,13 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 import scala.Tuple2;
-import utility.State;
-import utility.StateParser;
+import Parser.State;
+import Parser.StateParser;
 import utility.TrendLine;
 
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 public class Query3 {
     private static String pathToFile = "src/dataset/covid19datiinternazionali_cleaned.csv";
