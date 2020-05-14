@@ -1,3 +1,4 @@
+import KmeansMlibSpark.KMeansSpark;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -146,11 +147,24 @@ public class Query3a {
                 });
 
         JavaPairRDD<Integer, Iterable<Tuple2<Double, String>>> temp4 = pair_final.groupByKey();
+/*
+         for ( Tuple2<Integer, Iterable<Tuple2<Double, String>>>tupla4 : temp4.collect()) {
+             System.out.println(tupla4);
+         }*/
+            //KMeansCompute.belongCluster(temp4);
+        KMeansCompute.belongCluster(temp4);
+        /*JavaPairRDD<Integer,ArrayList<Tuple2<Integer,String>>> finalx=temp4.
+                mapToPair(new PairFunction<Tuple2<Integer, Iterable<Tuple2<Double, String>>>, Integer, ArrayList<Tuple2<Integer, String>>>() {
+            @Override
+            public Tuple2<Integer, ArrayList<Tuple2<Integer, String>>>
+            call(Tuple2<Integer, Iterable<Tuple2<Double, String>>> input) throws Exception {
+                ArrayList<Tuple2<Integer,String>> p=new ArrayList<>();
 
-        /*  for ( Tuple2<Integer, Iterable<Tuple2<Double, String>>>tupla4 : temp4.collect()) {
-            System.out.println(tupla4);
-*/
-            KMeansCompute.belongCluster(temp4);
+                p=KMeansSpark.computeKMeans(input._2());
+                return new Tuple2<>(input._1(),p);
+            }
+
+        });*/
         /*for(Tuple2<Integer, ArrayList<Tuple2<Double, String>>> tupla3:input2.collect()){
             System.out.println(tupla3);
         } */

@@ -23,8 +23,8 @@ public class KMeansCompute {
 
         //MI SERVE PER LA UNION?
         JavaRDD<Integer> chiave = integerIterableJavaPairRDD.keys();
-        /*//System.out.println(chiave.collect());
-        for(Iterable<Tuple2<Double, String>> x:value_per_month.collect()){
+        System.out.println(chiave.collect());
+        /*for(Iterable<Tuple2<Double, String>> x:value_per_month.collect()){
             System.out.println("Dopo il .values:"+x);
         }*/
 
@@ -59,8 +59,19 @@ public class KMeansCompute {
             }
         });
 
+        for(Vector i:parsedouble.collect()){
+            double []d=i.toArray();
+            for(int k=0;k<i.size();k++){
+                System.out.println(d[k]);
+            }
+        }
         parsedouble.cache();
+        //KMeansModel kmm=KMeans.train(parsedouble.rdd(),num_cluster,num_iterazioni);
         KMeansModel clusters = KMeans.train(parsedouble.rdd(), num_cluster, num_iterazioni);
+        for (Vector center: clusters.clusterCenters()) {
+            System.out.println("Cluster center for Clsuter "+ (num_cluster++) + " : " + center);
+        }
+
 
         /*for(Tuple2<Double[], ArrayList<String>> pippo : rdd.collect()){
             for(int index=0;index<pippo._1().length;index++)
