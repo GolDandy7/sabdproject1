@@ -3,8 +3,13 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
+import org.apache.spark.mllib.clustering.KMeans;
+import org.apache.spark.mllib.clustering.KMeansModel;
+import org.apache.spark.mllib.linalg.Vector;
+import org.apache.spark.mllib.linalg.Vectors;
 import scala.Tuple2;
 import KmeansMlibSpark.KMeansCompute;
 import Parser.State;
@@ -100,8 +105,8 @@ public class Query3a {
          */
         for (int i = 1; i <= grouped.countByKey().size(); i++) {
             ArrayList<Tuple2<Double, String>> list_tuple = new ArrayList<>();
-            finalI = i;
-            Integer finalI1 = finalI;
+
+            Integer finalI1 = i;
             JavaPairRDD<Integer, Iterable<Tuple2<Double, String>>> pairdRR_month = result_grouped.filter(x -> x._1().equals(finalI1));
             JavaPairRDD<Double, String> class_month = pairdRR_month.
                     flatMapToPair(new PairFlatMapFunction<Tuple2<Integer, Iterable<Tuple2<Double, String>>>, Double, String>() {
@@ -147,24 +152,52 @@ public class Query3a {
                 });
 
         JavaPairRDD<Integer, Iterable<Tuple2<Double, String>>> temp4 = pair_final.groupByKey();
-/*
-         for ( Tuple2<Integer, Iterable<Tuple2<Double, String>>>tupla4 : temp4.collect()) {
-             System.out.println(tupla4);
-         }*/
-            //KMeansCompute.belongCluster(temp4);
-        KMeansCompute.belongCluster(temp4);
-        /*JavaPairRDD<Integer,ArrayList<Tuple2<Integer,String>>> finalx=temp4.
-                mapToPair(new PairFunction<Tuple2<Integer, Iterable<Tuple2<Double, String>>>, Integer, ArrayList<Tuple2<Integer, String>>>() {
-            @Override
-            public Tuple2<Integer, ArrayList<Tuple2<Integer, String>>>
-            call(Tuple2<Integer, Iterable<Tuple2<Double, String>>> input) throws Exception {
-                ArrayList<Tuple2<Integer,String>> p=new ArrayList<>();
 
-                p=KMeansSpark.computeKMeans(input._2());
-                return new Tuple2<>(input._1(),p);
+          for ( Tuple2<Integer, Iterable<Tuple2<Double, String>>>tupla4 : temp4.collect()) {
+              System.out.println(tupla4);
+          }
+
+        for(int num_iter=1;num_iter<=temp4.keys().collect().size();num_iter++){
+            int finalNum_iter = num_iter;
+            JavaRDD<Vector> filtered = temp4.
+                    filter(x -> x._1().equals(finalNum_iter)).
+                    flatMap(new FlatMapFunction<Tuple2<Integer, Iterable<Tuple2<Double, String>>>, Vector>() {
+                @Override
+                public Iterator<Vector> call(Tuple2<Integer, Iterable<Tuple2<Double, String>>> input)
+                        throws Exception {
+                    ArrayList<Vector> result5=new ArrayList<>();
+                    for(Tuple2<Double,String> tupla:input._2()){
+                        Vector a = Vectors.dense(tupla._1());
+                        result5.add(a);
+                    }
+                    return result5.iterator();
+                }
+            });
+            /*System.out.println(filtered.collect().size());
+            for( Vector k:filtered.collect()){
+                System.out.println(k.toJson());
+            }*/
+            KMeansModel kMeansModel = KMeans.train(filtered.rdd(),4,20);
+            KMeansSpark kMeansSpark=new KMeansSpark(kMeansModel);
+            /*for (Vector center: clusters.clusterCenters()){
+                System.out.println("Cluster center for clusters:"+num_iter+":"+ center);
+            }*/
+            List<Iterable<Tuple2<Double, String>>> lista_punti = temp4.filter(x -> x._1().equals(finalNum_iter)).
+                    map(x -> x._2()).collect();
+            //ArrayList<Tuple2<String,Integer>>cluster=new ArrayList<>();
+            for(Iterable<Tuple2<Double,String>>lp:lista_punti){
+                for(Tuple2<Double,String> k:lp){
+                    System.out.println("Mese: "+num_iter+", Stato: "+k._2()+", cluster: "+kMeansSpark.getkMeansModel().predict(Vectors.dense(k._1())));
+                }
             }
 
-        });*/
+        }
+
+        //KMeansCompute.belongCluster(temp4);
+       /* for(int j=1; j<=temp4.keys().collect().size();j++) {
+            Integer ter=j;
+            KMeansCompute.belongCluster(temp4.filter(x->x._1().equals(ter)));
+        }*/
         /*for(Tuple2<Integer, ArrayList<Tuple2<Double, String>>> tupla3:input2.collect()){
             System.out.println(tupla3);
         } */
