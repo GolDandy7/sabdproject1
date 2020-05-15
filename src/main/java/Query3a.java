@@ -152,10 +152,14 @@ public class Query3a {
                 });
 
         JavaPairRDD<Integer, Iterable<Tuple2<Double, String>>> temp4 = pair_final.groupByKey();
-
+/*
           for ( Tuple2<Integer, Iterable<Tuple2<Double, String>>>tupla4 : temp4.collect()) {
               System.out.println(tupla4);
-          }
+          }*/
+
+        for ( int i=1; i<=temp4.keys().collect().size();i++){
+            Integer finalI1=i;
+            LloydKMeans.Naive((temp4.filter(x -> x._1().equals(finalI1)).values()),i);}
 
         for(int num_iter=1;num_iter<=temp4.keys().collect().size();num_iter++){
             int finalNum_iter = num_iter;
