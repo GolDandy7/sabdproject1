@@ -3,19 +3,12 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
-import org.apache.spark.mllib.clustering.KMeans;
-import org.apache.spark.mllib.clustering.KMeansModel;
-import org.apache.spark.mllib.linalg.Vector;
-import org.apache.spark.mllib.linalg.Vectors;
 import scala.Tuple2;
-import KmeansMlibSpark.KMeansCompute;
 import Parser.State;
 import Parser.StateParser;
 import utility.TrendLine;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -23,8 +16,15 @@ import java.util.List;
 public class Query3 {
 
     private static String pathToFile = "src/dataset/covid19datiinternazionali_cleaned.csv";
+    private static int NUMERO_TOP_TREND=15;
+    private static int MAX_ITERATION_LLOYDKMEANS=10;
 
     public static void main(String[] args) {
+        long startTime;
+        long endTime;
+        long TotalTime;
+
+        startTime= System.nanoTime();
 
         SparkConf conf = new SparkConf()
                 .setMaster("local")
@@ -152,24 +152,27 @@ public class Query3 {
                 });
 
         JavaPairRDD<Integer, Iterable<Tuple2<Double, String>>> temp4 = pair_final.groupByKey();
-/*
-          for ( Tuple2<Integer, Iterable<Tuple2<Double, String>>>tupla4 : temp4.collect()) {
-              System.out.println(tupla4);
-          }*/
+
+
+
+
+        //++++++++++++++++++++++++++ START ALGORITMO NAIVE LLOYD'S KMEANS+++++++++++++++++++++++++++++++++++++++
+
+
 
         for ( int i=1; i<=temp4.keys().collect().size();i++){
             Integer finalI1=i;
-            LloydKMeans.Naive((temp4.filter(x -> x._1().equals(finalI1)).values()),finalI1);
+            LloydKMeans.Naive((temp4.filter(x -> x._1().equals(finalI1)).values()),finalI1,NUMERO_TOP_TREND,MAX_ITERATION_LLOYDKMEANS);
         }
 
-        //KMeansCompute.belongCluster(temp4);
-       /* for(int j=1; j<=temp4.keys().collect().size();j++) {
-            Integer ter=j;
-            KMeansCompute.belongCluster(temp4.filter(x->x._1().equals(ter)));
-        }*/
-        /*for(Tuple2<Integer, ArrayList<Tuple2<Double, String>>> tupla3:input2.collect()){
-            System.out.println(tupla3);
-        } */
+
+
+        //++++++++++++++++++++++++++ END ALGORITMO NAIVE LLOYD'S KMEANS+++++++++++++++++++++++++++++++++++++++
+
+        endTime= System.nanoTime();
+        TotalTime= endTime-startTime;
+        System.out.println("Tempo Algoritmo con Naive: "+TotalTime/1_000_000_000 + " secondi");
+
     }
 
 

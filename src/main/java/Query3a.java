@@ -11,7 +11,6 @@ import org.apache.spark.mllib.clustering.KMeansModel;
 import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.mllib.linalg.Vectors;
 import scala.Tuple2;
-import KmeansMlibSpark.KMeansCompute;
 import Parser.State;
 import Parser.StateParser;
 import utility.TrendLine;
@@ -23,8 +22,16 @@ import java.util.List;
 public class Query3a {
 
     private static String pathToFile = "src/dataset/covid19datiinternazionali_cleaned.csv";
+    private static int NUMERO_TOP_TREND=15;
+    private static int MAX_ITERATION_LLOYDKMEANS=10;
 
     public static void main(String[] args) {
+
+        long startTime;
+        long endTime;
+        long TotalTime;
+
+        startTime= System.nanoTime();
 
         SparkConf conf = new SparkConf()
                 .setMaster("local")
@@ -74,6 +81,7 @@ public class Query3a {
          dopo che abbiamo raggruppato per chiavi, otteniamo il trend generando un nuovo pair rdd cosi composto:
          Tuple2:<<Mese>,<Trend,Nome dello stato>>
          */
+
         JavaPairRDD<Integer, Tuple2<Double, String>> grouped = result.mapToPair(new PairFunction<Tuple2<Tuple2<String, Integer>, Iterable<Tuple2<Integer, Integer>>>, Integer, Tuple2<Double, String>>() {
             @Override
             public Tuple2<Integer, Tuple2<Double, String>>
@@ -90,13 +98,15 @@ public class Query3a {
         });
 
         /*
-        Una volta ottenuti i trend per ogni mese, raggruppiamo per chiave ottenendo un paird rdd composto da:
+        Una volta ottenuti i trend per ogni mese, raggruppiamo per chiave ottenendo un pair rdd composto da:
         <Mese>,<Iterable<Trend,Nome dello stato>>
          */
+
         JavaPairRDD<Integer, Iterable<Tuple2<Double, String>>> result_grouped = grouped.groupByKey();
         Integer finalI;
 
         //Definiamo un arrayList contente le tuple del tipo <Numero Mese, Lista di Tuple< Trend, Nome stato >> corrispettivi al mese
+
         ArrayList<Tuple2<Integer, ArrayList<Tuple2<Double, String>>>> list_top_per_month = new ArrayList<>();
 
         /*
@@ -121,7 +131,7 @@ public class Query3a {
                             return result_flat2.iterator();
                         }
                     });
-            List<Tuple2<Double, String>> top = class_month.sortByKey(false).take(5);
+            List<Tuple2<Double, String>> top = class_month.sortByKey(false).take(NUMERO_TOP_TREND);
             for (Tuple2<Double, String> iter : top) {
                 list_tuple.add(iter);
             }
@@ -132,12 +142,14 @@ public class Query3a {
         /*
          prendiamo la lista e la trasformiamo in un Rdd
          */
+
         JavaRDD<Tuple2<Integer, ArrayList<Tuple2<Double, String>>>> input2 = sc.parallelize(list_top_per_month);
 
         /*
         prendiamo il nostro RDD creato precedentemente e lo trasformiamo in pair rdd cosi ottenuto:
         <mese><top 50 stati per mese>
          */
+
         JavaPairRDD<Integer, Tuple2<Double, String>> pair_final = input2.
                 flatMapToPair(new PairFlatMapFunction<Tuple2<Integer, ArrayList<Tuple2<Double, String>>>, Integer, Tuple2<Double, String>>() {
                     @Override
@@ -152,14 +164,15 @@ public class Query3a {
                 });
 
         JavaPairRDD<Integer, Iterable<Tuple2<Double, String>>> temp4 = pair_final.groupByKey();
-/*
-          for ( Tuple2<Integer, Iterable<Tuple2<Double, String>>>tupla4 : temp4.collect()) {
-              System.out.println(tupla4);
-          }*/
 
-        for ( int i=1; i<=temp4.keys().collect().size();i++){
-            Integer finalI1=i;
-            LloydKMeans.Naive((temp4.filter(x -> x._1().equals(finalI1)).values()),i);}
+
+
+
+
+
+        //++++++++++++++++++++++++++ START ALGORITMO MLLIB SPARK KMEANS+++++++++++++++++++++++++++++++++++++++
+
+
 
         for(int num_iter=1;num_iter<=temp4.keys().collect().size();num_iter++){
             int finalNum_iter = num_iter;
@@ -177,37 +190,31 @@ public class Query3a {
                     return result5.iterator();
                 }
             });
-            /*System.out.println(filtered.collect().size());
-            for( Vector k:filtered.collect()){
-                System.out.println(k.toJson());
-            }*/
+
             KMeansModel kMeansModel = KMeans.train(filtered.rdd(),4,20);
             KMeansSpark kMeansSpark=new KMeansSpark(kMeansModel);
-            /*for (Vector center: clusters.clusterCenters()){
-                System.out.println("Cluster center for clusters:"+num_iter+":"+ center);
-            }*/
+
             List<Iterable<Tuple2<Double, String>>> lista_punti = temp4.filter(x -> x._1().equals(finalNum_iter)).
                     map(x -> x._2()).collect();
+
             //ArrayList<Tuple2<String,Integer>>cluster=new ArrayList<>();
             for(Iterable<Tuple2<Double,String>>lp:lista_punti){
                 for(Tuple2<Double,String> k:lp){
-                    System.out.println("Mese: "+num_iter+", Stato: "+k._2()+", cluster: "+kMeansSpark.getkMeansModel().predict(Vectors.dense(k._1())));
+                    System.out.println("Mese: "+num_iter+", Stato: "+k._2()+", Cluster: "+kMeansSpark.getkMeansModel().predict(Vectors.dense(k._1())));
                 }
             }
 
         }
 
-        //KMeansCompute.belongCluster(temp4);
-       /* for(int j=1; j<=temp4.keys().collect().size();j++) {
-            Integer ter=j;
-            KMeansCompute.belongCluster(temp4.filter(x->x._1().equals(ter)));
-        }*/
-        /*for(Tuple2<Integer, ArrayList<Tuple2<Double, String>>> tupla3:input2.collect()){
-            System.out.println(tupla3);
-        } */
+
+
+        //++++++++++++++++++++++++++ END ALGORITMO MLLIB SPARK KMEANS+++++++++++++++++++++++++++++++++++++++
+
+        endTime= System.nanoTime();
+        TotalTime= endTime-startTime;
+        System.out.println("Tempo Algoritmo con Kmeans Spark Mllib: "+ TotalTime/1_000_000_000+ " secondi");
+
     }
-
-
 
 
     public static Integer getDay(String date){
