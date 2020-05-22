@@ -4,8 +4,9 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.PairFunction;
+import producer.Producer;
 import scala.Tuple2;
-import Parser.Outlet;
+import entity.Outlet;
 import Parser.OutletParser;
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -107,6 +108,25 @@ public class Query1 {
                     i._2()._1()._1() + " numero medio tamponi: "+ i._2()._1()._2());
 
         }
+
+        //pairRDD_final_results.saveAsTextFile("src/dataset/output1");
+
+        /*JavaRDD<String> prova = pairRDD_final_results.map( i-> new String("Settimana:" + i._1() +" numero di giorni:"+ i._2()._2() +" numero guariti medio :"+
+                i._2()._1()._1() + " numero medio tamponi: "+ i._2()._1()._2()));*/
+        JavaRDD<String> toParse=pairRDD_final_results.
+                map(x->new String(x._1()+","+x._2()._1()._1()+","+x._2()._1()._2()+","+x._2()._2()));
+
+        //toParse.saveAsTextFile("pathOutputQuery1");
+        for(String s: toParse.collect()){
+            System.out.println(s);
+        }
+
+        //Producer producer = new Producer();
+        //producer.sendToHDFS(prova.collect(),"result1");
+        /*Producer producer1= new Producer();
+        producer1.sendToHbase(prova.collect(), "hbase1");*/
+
+
         sc.stop();
     }
     // TODO: creare una classe con tutte le utils

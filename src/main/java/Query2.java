@@ -8,7 +8,7 @@ import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 import scala.Tuple2;
 import Parser.RegionParser;
-import Parser.State;
+import entity.State;
 import Parser.StateParser;
 import utility.TrendLine;
 
@@ -72,7 +72,7 @@ public class Query2 {
                 });
 
 
-        List<Tuple2<Double, String>> pairTop = pairRDD_trend.sortByKey(false).take(2);
+        List<Tuple2<Double, String>> pairTop = pairRDD_trend.sortByKey(false).take(100);
 
 
 
@@ -90,8 +90,8 @@ public class Query2 {
             }
         });
 
-       for (Tuple2<String, State> j : resultfilter.collect()){
-            System.out.println(j);}
+      /* for (Tuple2<String, State> j : resultfilter.collect()){
+            System.out.println(j);}*/
 
         JavaPairRDD<String,State> pairRDD_state_country=resultfilter.mapToPair(x->new Tuple2<>(x._2().getCountry(),x._2()));
         /*System.out.println("Dimensione di pairddd state country dopo join:"+pairRDD_state_country.collect().size());
@@ -157,12 +157,26 @@ public class Query2 {
                 join(count).
                 mapToPair(x->new Tuple2<>(x._1(),Math.sqrt(x._2()._1()/x._2()._2())));
 
-        for(Tuple2<Tuple2<String,String>,Double> pippo: pairRDD_dev_std.collect()){
+    /*    for(Tuple2<Tuple2<String,String>,Double> pippo: pairRDD_dev_std.collect()){
             System.out.println(pippo);
-        }
+        }*/
 
         JavaPairRDD<Tuple2<String, String>, Tuple2<Tuple2<Tuple2<Integer, Integer>, Double>, Double>> result_final =
                 (arrayMax.join(arrayMin)).join(average).join(pairRDD_dev_std);
+      /*  for( Tuple2<Tuple2<String, String>, Tuple2<Tuple2<Tuple2<Integer, Integer>, Double>, Double>> r: result_final.collect()){
+            System.out.println(r);
+        }*/
+
+        JavaRDD<String> toparse2=result_final.map(x->new String(x._1()._1()+
+                ","+x._1()._2()+","+x._2()._1()._1()._1()+","+x._2()._1()._1()._2()+","+x._2()._1()._2()+
+                ","+x._2()._2()));
+
+       // toparse2.saveAsTextFile(pathOutputQuery2);
+
+        for(String s: toparse2.collect()){
+            System.out.println(s);
+        }
+
 
         sc.stop();
 

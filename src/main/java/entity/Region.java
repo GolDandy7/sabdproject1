@@ -1,4 +1,4 @@
-package Parser;
+package entity;
 
 public class Region {
     private String region;

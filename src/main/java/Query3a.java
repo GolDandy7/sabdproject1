@@ -11,7 +11,7 @@ import org.apache.spark.mllib.clustering.KMeansModel;
 import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.mllib.linalg.Vectors;
 import scala.Tuple2;
-import Parser.State;
+import entity.State;
 import Parser.StateParser;
 import utility.TrendLine;
 
@@ -172,7 +172,7 @@ public class Query3a {
 
         //++++++++++++++++++++++++++ START ALGORITMO MLLIB SPARK KMEANS+++++++++++++++++++++++++++++++++++++++
 
-
+        List<Tuple2<Integer,Tuple2<String,Integer>>> to_file = new ArrayList<>();
 
         for(int num_iter=1;num_iter<=temp4.keys().collect().size();num_iter++){
             int finalNum_iter = num_iter;
@@ -197,13 +197,20 @@ public class Query3a {
             List<Iterable<Tuple2<Double, String>>> lista_punti = temp4.filter(x -> x._1().equals(finalNum_iter)).
                     map(x -> x._2()).collect();
 
-            //ArrayList<Tuple2<String,Integer>>cluster=new ArrayList<>();
             for(Iterable<Tuple2<Double,String>>lp:lista_punti){
                 for(Tuple2<Double,String> k:lp){
-                    System.out.println("Mese: "+num_iter+", Stato: "+k._2()+", Cluster: "+kMeansSpark.getkMeansModel().predict(Vectors.dense(k._1())));
+                    to_file.add(new Tuple2<>(num_iter,new Tuple2<>(k._2(),kMeansSpark.getkMeansModel().predict(Vectors.dense(k._1())))));
                 }
             }
 
+        }
+
+
+        JavaRDD<String> toParse3 = sc.parallelize(to_file).
+                map(x->new String(x._1()+","+x._2()._1()+","+x._2()._2()));
+        //toParse3.saveAsTextFile(pathOutputQuery3a);
+        for(String s: toParse3.collect()){
+            System.out.println(s);
         }
 
 

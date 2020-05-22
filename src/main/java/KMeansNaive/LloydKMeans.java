@@ -1,3 +1,5 @@
+package KMeansNaive;
+
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
@@ -5,12 +7,13 @@ import org.apache.spark.api.java.function.PairFunction;
 import scala.Tuple2;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 public class LloydKMeans {
 
 
 
-    public static void Naive(JavaRDD<Iterable<Tuple2<Double,String>>> input, Integer mesex, int numeber_top, int ITERAZIONI) {
+    public static List<Tuple2<Integer, Tuple2<Double, String>>> Naive(JavaRDD<Iterable<Tuple2<Double,String>>> input, Integer mesex, int numeber_top, int ITERAZIONI) {
 
         //RDD con chiave il mese e valore la lista dei trend top
         JavaPairRDD<Integer, ArrayList<Double>> init = input.mapToPair(new PairFunction<Iterable<Tuple2<Double, String>>, Integer, ArrayList<Double>>() {
@@ -113,11 +116,8 @@ public class LloydKMeans {
             }
         }
 
-        System.out.println("********RISULTATI***** "+ mesex);
-        for(Tuple2<Integer, Tuple2<Double, String>> t: cluster_1.collect()){
-            System.out.println("Mese: "+mesex+ "  Stato: "+ t._2()._2()+ "  Trend: " + t._2()._1() + "  Cluster: "+ t._1());
-        }
 
+        return cluster_1.collect();
     }
 
 }

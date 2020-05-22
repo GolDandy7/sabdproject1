@@ -1,5 +1,7 @@
 package Parser;
 
+import entity.State;
+
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.Month;
@@ -17,7 +19,7 @@ public class StateParser {
         State state = null;
         Integer x=0,y,z,r;
         String[] csvValues = csvLine.split(",");
-        if(csvValues[x].isEmpty() || csvValues[x].equals(" "))
+        if(csvValues[x].isEmpty() || csvValues[x].equals(" ") || csvValues[x].toLowerCase().equals("nan"))
             x=1;
         ArrayList<Integer> sick_number=new ArrayList<>();
         for(int i=4;i<csvValues.length;i++){
@@ -27,6 +29,7 @@ public class StateParser {
             else {
                 y=Integer.parseInt(csvValues[i]);
                 z=Integer.parseInt(csvValues[(i-1)]);
+                //Francia: 167605, 165093--> 167605, 167605 elimino il dato di quel giorno considerando 0 contagiati
                 if(y<z)
                     r=0;
                 else

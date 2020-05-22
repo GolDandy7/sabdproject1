@@ -1,4 +1,4 @@
-import KmeansMlibSpark.KMeansSpark;
+import KMeansNaive.LloydKMeans;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -6,7 +6,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 import scala.Tuple2;
-import Parser.State;
+import entity.State;
 import Parser.StateParser;
 import utility.TrendLine;
 import java.util.ArrayList;
@@ -160,10 +160,21 @@ public class Query3 {
 
 
 
+        List<Tuple2<Integer,Tuple2<String,Integer>>> to_file2=new ArrayList<>();
+
         for ( int i=1; i<=temp4.keys().collect().size();i++){
             Integer finalI1=i;
-            LloydKMeans.Naive((temp4.filter(x -> x._1().equals(finalI1)).values()),finalI1,NUMERO_TOP_TREND,MAX_ITERATION_LLOYDKMEANS);
+            List<Tuple2<Integer, Tuple2<Double, String>>> tmplist = LloydKMeans.Naive((temp4.filter(x -> x._1().equals(finalI1)).values()), finalI1, NUMERO_TOP_TREND, MAX_ITERATION_LLOYDKMEANS);
+            for(int k=0;k<tmplist.size();k++){
+                to_file2.add(new Tuple2<>(i,new Tuple2<>(tmplist.get(k)._2()._2(),tmplist.get(k)._1())));
+            }
         }
+        JavaRDD<String> toParse4=sc.parallelize(to_file2).
+                map(x->new String(x._1()+","+x._2()._1()+","+x._2()._2()));
+
+        toParse4.saveAsTextFile("src/output/q33");
+        //toParse4.saveAsTextFile(pathOutputQuery3);
+
 
 
 

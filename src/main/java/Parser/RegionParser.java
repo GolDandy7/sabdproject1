@@ -1,6 +1,8 @@
 package Parser;
 
 
+import entity.Region;
+
 public class RegionParser {
 
     public static Region parseCSVRegion(String line) {
