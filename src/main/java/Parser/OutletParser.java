@@ -12,8 +12,8 @@ public class OutletParser {
         //TODO sistemare i valori delle colonne dopo preprocessing con Nifi
         outlet = new Outlet(
                 csvValues[0], // data
-                csvValues[9], // guariti
-                csvValues[12] // tamponi
+                csvValues[1], // guariti
+                csvValues[2] // tamponi
         );
 
         return outlet;

@@ -102,17 +102,9 @@ public class Query1 {
                 mapToPair(x -> new Tuple2<>(x._1(), new Tuple2<>(new Tuple2<>((double)x._2()._1()._1() / x._2()._2(),
                         (double)x._2()._1()._2() / x._2()._2()), x._2()._2()))).sortByKey();
 
-        for (Tuple2<String, Tuple2<Tuple2<Double, Double>, Integer>> i: pairRDD_final_results.collect()){
 
-            System.out.println("Settimana:" + i._1() +" numero di giorni:"+ i._2()._2() +" numero guariti medio :"+
-                    i._2()._1()._1() + " numero medio tamponi: "+ i._2()._1()._2());
 
-        }
 
-        //pairRDD_final_results.saveAsTextFile("src/dataset/output1");
-
-        /*JavaRDD<String> prova = pairRDD_final_results.map( i-> new String("Settimana:" + i._1() +" numero di giorni:"+ i._2()._2() +" numero guariti medio :"+
-                i._2()._1()._1() + " numero medio tamponi: "+ i._2()._1()._2()));*/
         JavaRDD<String> toParse=pairRDD_final_results.
                 map(x->new String(x._1()+","+x._2()._1()._1()+","+x._2()._1()._2()+","+x._2()._2()));
 
