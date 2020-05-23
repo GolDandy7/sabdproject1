@@ -26,7 +26,7 @@ public class Query3 {
         long startTime;
         long endTime;
         ArrayList<Long> TotalTime= new ArrayList<>();
-        for (int ietrazione = 0; ietrazione < 10; ietrazione++) {
+
 
             startTime = System.nanoTime();
 
@@ -176,17 +176,17 @@ public class Query3 {
                     map(x -> new String(x._1() + "," + x._2()._1() + "," + x._2()._2()));
 
 
-            //toParse4.saveAsTextFile(pathOutputQuery3);
 
+            toParse4.saveAsTextFile(putToHDFS);
 
             //++++++++++++++++++++++++++ END ALGORITMO NAIVE LLOYD'S KMEANS+++++++++++++++++++++++++++++++++++++++
             sc.stop();
             endTime = System.nanoTime();
             TotalTime.add((endTime-startTime)/1_000_000_000);
 
-            toParse4.saveAsTextFile(putToHDFS);
 
-        }
+
+
         for(Long t:TotalTime)
             System.out.println(t +"secondi");
 

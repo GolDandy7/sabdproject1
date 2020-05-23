@@ -4,7 +4,6 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.PairFunction;
-import producer.Producer;
 import scala.Tuple2;
 import entity.Outlet;
 import Parser.OutletParser;
@@ -26,7 +25,7 @@ public class Query1 {
         long endTime;
         long TotalTime;
 
-        for (int ietrazione = 0; ietrazione < 10; ietrazione++) {
+
 
             startTime = System.nanoTime();
 
@@ -63,10 +62,12 @@ public class Query1 {
                     mapToPair(x -> new Tuple2<>(x.getDateTime().plusDays(1), x.getSwabs()));
 
             // RDD result1-> 2020/02/24 tupla<1, 3>, mentre result1shift-> 2020/02/25 tupla <1,3>
+
             JavaPairRDD<LocalDate, Tuple2<Integer, Integer>> pairRDD_join_sh = pairRDD_healed.join(pairRDD_swabs);
             JavaPairRDD<LocalDate, Tuple2<Integer, Integer>> pairRDD_join_sh_shifted = pairRDD_healed_shifted.join(pairRDD_shifted);
 
             /* RDD che contiene i dati non cumulativi di Guariti e Tamponi*/
+
             JavaPairRDD<LocalDate, Tuple2<Integer, Integer>> pairRDD_daily_sh = pairRDD_join_sh_shifted.
                     rightOuterJoin(pairRDD_join_sh).
                     mapToPair(new PairFunction<Tuple2<LocalDate, Tuple2<Optional<Tuple2<Integer, Integer>>, Tuple2<Integer,
@@ -117,23 +118,15 @@ public class Query1 {
                     map(x -> new String(x._1() + "," + x._2()._1()._1() + "," + x._2()._1()._2() + "," + x._2()._2()));
 
 
-            /*for (String s : toParse.collect()) {
-                System.out.println(s);
-            }*/
-
-            //Producer producer = new Producer();
-            //producer.sendToHDFS(prova.collect(),"result1");
-             /*Producer producer1= new Producer();
-              producer1.sendToHbase(prova.collect(), "hbase1");*/
-
             toParse.saveAsTextFile(putToHDFS);
+
 
             sc.stop();
             endTime = System.nanoTime();
             TotalTime = endTime - startTime;
             System.out.println("Query1 time: " + TotalTime / 1_000_000_000 + " secondi");
         }
-    }
+
     // TODO: creare una classe con tutte le utils
     public static String getWeek(String data) throws ParseException {
         //2020-02-24
@@ -141,7 +134,6 @@ public class Query1 {
         LocalDate date = LocalDate.parse(data, df);
         WeekFields weekFields = WeekFields.of(Locale.getDefault());
         int week = date.get(weekFields.weekOfWeekBasedYear());
-        String w= "W"+week;
-        return w;
+       return "W"+week;
     }
 }

@@ -15,17 +15,23 @@ public class TransfertToHbase {
 
         Producer producer = new Producer();
 
-        //leggo file da hdfs
-       /* List<String> list1 = sc.textFile("hdfs://localhost:54310/marco/sabd/query1")
+        //read and convert file from hdfs
+        List<String> list1 = sc.textFile("hdfs://localhost:54310/out/query1")
                 .collect();
 
-        List<String> list2 = sc.textFile("hdfs://localhost:54310/marco/sabd/query2")
-                .collect();
-        List<String> list3 = sc.textFile("hdfs://localhost:54310/marco/sabd/query3")
+       List<String> list2 = sc.textFile("hdfs://localhost:54310/out/query2")
                 .collect();
 
-        producer.sendToHbase(list1,"hbase");
-        producer.sendToHbase(list2,"hbase");
-        producer.sendToHbase(list3,"hbase");*/
+        List<String> list3 = sc.textFile("hdfs://localhost:54310/out/query3")
+                .collect();
+
+        List<String> list3a = sc.textFile("hdfs://localhost:54310/out/query3a")
+                .collect();
+
+        //send to Hbase
+        producer.sendToHbase(list1,"hbase1");
+        producer.sendToHbase(list2,"hbase1");
+        producer.sendToHbase(list3,"hbase1");
+        producer.sendToHbase(list3a,"hbase1");
     }
 }

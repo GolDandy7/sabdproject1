@@ -36,7 +36,7 @@ public class Query2 {
         long endTime;
         long TotalTime;
 
-        for (int ietrazione = 0; ietrazione < 10; ietrazione++) {
+
             startTime = System.nanoTime();
 
             SparkConf conf = new SparkConf()
@@ -57,9 +57,7 @@ public class Query2 {
 
             JavaRDD<String> covid_data = raws.filter(x -> !x.equals(firstRow));
             JavaRDD<State> rdd_state = covid_data.map(line -> StateParser.parseCSV2(line));
-        /*// stampo rdd state per verificare se mi ha tolto la cumulativita
-        for(State i:rdd_state.collect())
-            System.out.println(i);*/
+
 
             //RDD del csv region nostro
             JavaRDD<String> rddregion = sc.textFile(pathregion);
@@ -101,25 +99,17 @@ public class Query2 {
                 }
             });
 
-      /* for (Tuple2<String, State> j : resultfilter.collect()){
-            System.out.println(j);}*/
+
 
             JavaPairRDD<String, State> pairRDD_state_country = resultfilter.mapToPair(x -> new Tuple2<>(x._2().getCountry(), x._2()));
-        /*System.out.println("Dimensione di pairddd state country dopo join:"+pairRDD_state_country.collect().size());
-        for (Tuple2<String, State> j : pairRDD_state_country.collect()){
-            System.out.println(j._1());}
-*/
+
             JavaPairRDD<String, Tuple2<State, String>> rdd_continents = pairRDD_state_country.join(rddPair_region);
-        /*System.out.println(("Stampa rdd continents"));
-        for(Tuple2<String, Tuple2<State, String>> i: rdd_continents.collect())
-            System.out.println(i._1());
-*/
+
             JavaPairRDD<String, ArrayList<Integer>> rdd_region_final = rdd_continents.
                     mapToPair(x -> new Tuple2<>(x._2()._2(), x._2()._1().getSick_number()));
-            //System.out.println("Dimensione rdd region final:"+rdd_region_final.collect().size());
-       /*for(Tuple2<String, ArrayList<Integer>> i: rdd_region_final.collect())
-            System.out.println(i._1()+" PRIMO VALORE:"+i._2().get(0));
-*/
+
+
+
             JavaPairRDD<String, ArrayList<Integer>> pairRDD_sum = rdd_region_final.
                     reduceByKey(new Function2<ArrayList<Integer>, ArrayList<Integer>, ArrayList<Integer>>() {
                         @Override
@@ -132,7 +122,7 @@ public class Query2 {
                     });
 
             ArrayList<String> week = StateParser.convertDatetoWeek(date_names);
-            // contiene <continente,week>,somma valore per quel giorno per continente
+            // <continente,week>,somma valore per quel giorno per continente
             JavaPairRDD<Tuple2<String, String>, Integer> pair_flat = pairRDD_sum.
                     flatMapToPair(new PairFlatMapFunction<Tuple2<String, ArrayList<Integer>>, Tuple2<String, String>, Integer>() {
                         @Override
@@ -150,9 +140,7 @@ public class Query2 {
                     });
 
 
-      /* for( Tuple2<Tuple2<String,String>,Integer>i: pair_flat.collect()){
-            System.out.println(i);
-        }*/
+
 
             JavaPairRDD<Tuple2<String, String>, Integer> unitario = pair_flat.mapToPair(x -> new Tuple2<>(x._1(), 1));
             JavaPairRDD<Tuple2<String, String>, Integer> count = unitario.reduceByKey((a, b) -> a + b);
@@ -168,15 +156,11 @@ public class Query2 {
                     join(count).
                     mapToPair(x -> new Tuple2<>(x._1(), Math.sqrt(x._2()._1() / x._2()._2())));
 
-    /*    for(Tuple2<Tuple2<String,String>,Double> pippo: pairRDD_dev_std.collect()){
-            System.out.println(pippo);
-        }*/
+
 
             JavaPairRDD<Tuple2<String, String>, Tuple2<Tuple2<Tuple2<Integer, Integer>, Double>, Double>> result_final =
                     (arrayMax.join(arrayMin)).join(average).join(pairRDD_dev_std);
-      /*  for( Tuple2<Tuple2<String, String>, Tuple2<Tuple2<Tuple2<Integer, Integer>, Double>, Double>> r: result_final.collect()){
-            System.out.println(r);
-        }*/
+
 
             JavaRDD<String> toparse2 = result_final.map(x -> new String(x._1()._1() +
                     "," + x._1()._2() + "," + x._2()._1()._1()._1() + "," + x._2()._1()._1()._2() + "," + x._2()._1()._2() +
@@ -192,4 +176,4 @@ public class Query2 {
 
         }
     }
-}
+
