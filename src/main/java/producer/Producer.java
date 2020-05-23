@@ -18,7 +18,7 @@ public class Producer {
             e.printStackTrace();
         }
     }
-
+    //send to HDFS
     public static void sendToHDFS(List<String> list, String topic) {
 
         org.apache.kafka.clients.producer.Producer<String, String> producer = ProducerCreator.createProducer();
@@ -30,12 +30,12 @@ public class Producer {
                 sendMessage(producer,i+"", row, topic);
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
         }
     }
 
-
+    //send to Hbase
     public static void sendToHbase(List<String> list, String topic) {
 
         org.apache.kafka.clients.producer.Producer<String, String> producer = ProducerCreator.createProducer();
@@ -47,8 +47,26 @@ public class Producer {
                 sendMessage(producer,i+"", row, topic);
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
         }
     }
+
+    //send to HDFS and Hbase
+    public static void sendToConsumers(List<String> list, String topic) {
+
+        org.apache.kafka.clients.producer.Producer<String, String> producer = ProducerCreator.createProducer();
+
+        try {
+            int i;
+            for(i=0; i<list.size(); i++){
+                String row = list.get(i);
+                sendMessage(producer,i+"", row, topic);
+            }
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -36,7 +36,7 @@ public class Query3a {
         long endTime;
 
         ArrayList<Long> TotalTime= new ArrayList<>();
-        for (int ietrazione = 0; ietrazione < 10; ietrazione++) {
+
             startTime = System.nanoTime();
 
             SparkConf conf = new SparkConf()
@@ -216,20 +216,18 @@ public class Query3a {
 
 
 
-     /*   for(String s: toParse3.collect()){
-            System.out.println(s);
-        }*/
 
+            toParse3.saveAsTextFile(putToHDFS);;
 
             //++++++++++++++++++++++++++ END ALGORITMO MLLIB SPARK KMEANS+++++++++++++++++++++++++++++++++++++++
             sc.stop();
             endTime = System.nanoTime();
             TotalTime.add((endTime-startTime)/1_000_000_000);
 
-           // toParse3.saveAsTextFile("src/output/query3"+ietrazione+"_"+TotalTime / 1_000_000_000);
-            toParse3.saveAsTextFile(putToHDFS);;
 
-        }
+
+
+
 
         for(Long t:TotalTime)
             System.out.println(t +"secondi");

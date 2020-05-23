@@ -9,7 +9,6 @@ public class OutletParser {
         Outlet outlet = null;
         String[] csvValues = csvLine.split(",");
 
-        //TODO sistemare i valori delle colonne dopo preprocessing con Nifi
         outlet = new Outlet(
                 csvValues[0], // data
                 csvValues[1], // guariti

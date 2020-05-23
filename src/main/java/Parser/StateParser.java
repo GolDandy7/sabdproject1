@@ -34,7 +34,7 @@ public class StateParser {
                     r=0;
                 else
                     r=y-z;
-               // System.out.println("y:"+y+" e z:"+z);
+
                 sick_number.add(r);
             }
 
@@ -55,14 +55,12 @@ public class StateParser {
         //2020-02-24
         String[] d=data.split("/");
 
-       /* System.out.println("SOno prima del parse "+data);
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("MM/dd/YY", Locale.ENGLISH);*/
+
         LocalDate date = LocalDate.of(Integer.parseInt(d[2]),Integer.parseInt(d[0]),Integer.parseInt(d[1]));
-        //System.out.println("Data Locale:"+date);
         WeekFields weekFields = WeekFields.of(Locale.getDefault());
         int week = date.get(weekFields.weekOfWeekBasedYear());
-        String w= "W"+week;
-        return w;
+        return "W"+week;
+
     }
 
     public static Month getMonth(String data) throws ParseException {
@@ -141,9 +139,7 @@ public class StateParser {
             }else {
                 y.add(String.valueOf(x.get(i)));
                 z= String.valueOf(x.get(i));
-
             }
-
         }
         return y;
     }
