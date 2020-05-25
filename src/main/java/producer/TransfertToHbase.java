@@ -19,7 +19,7 @@ public class TransfertToHbase {
         List<String> list1 = sc.textFile("hdfs://localhost:54310/out/query1")
                 .collect();
 
-       List<String> list2 = sc.textFile("hdfs://localhost:54310/out/query2")
+        List<String> list2 = sc.textFile("hdfs://localhost:54310/out/query2")
                 .collect();
 
         List<String> list3 = sc.textFile("hdfs://localhost:54310/out/query3")

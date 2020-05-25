@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Random;
 public class LloydKMeans {
 
-
-
     public static List<Tuple2<Integer, Tuple2<Double, String>>> Naive(JavaRDD<Iterable<Tuple2<Double,String>>> input, Integer mesex, int numeber_top, int ITERAZIONI) {
 
         //RDD con chiave il mese e valore la lista dei trend top
@@ -27,17 +25,14 @@ public class LloydKMeans {
             }
         });
 
-
         // Array List di trend
         ArrayList<Double> d = new ArrayList<>();
 
         for (Tuple2<Integer, ArrayList<Double>> t : init.collect()) {
-
             for (int k = 0; k < t._2().size(); k++) {
                 d.add(t._2.get(k));
             }
         }
-
 
         //Generatore random di centroidi sulla lista dei trend arrivati per mese
         Random r = new Random();
@@ -48,19 +43,13 @@ public class LloydKMeans {
         centroide.add(d.get(r.nextInt(upper)));
         centroide.add(d.get(r.nextInt(upper)));
 
-
-
-
-
         //Inizializzazione RDD per ciclo di iterazioni
         JavaPairRDD<Integer, Tuple2<Double, String>> cluster_1 = null;
-
 
         //Ciclo di iterazioni
         for (int iter = 0; iter < ITERAZIONI; iter++) {
 
-        //MAP dei trend per i centroidi restituisce il cluster e il trend con lo stato associato
-
+            //MAP dei trend per i centroidi restituisce il cluster e il trend con lo stato associato
             cluster_1 = input.flatMapToPair(new PairFlatMapFunction<Iterable<Tuple2<Double, String>>, Integer, Tuple2<Double, String>>() {
                 @Override
                 public Iterator<Tuple2<Integer, Tuple2<Double, String>>> call(Iterable<Tuple2<Double, String>> tuple2s) throws Exception {
@@ -84,9 +73,6 @@ public class LloydKMeans {
                     return res.iterator();
                 }
             });
-
-
-
 
             //Map in RDD con chiave il cluster  e valore il trend
             JavaPairRDD<Integer, Double> cluster_2 = cluster_1.mapToPair(x -> new Tuple2<>(x._1(), x._2()._1()));
@@ -115,7 +101,6 @@ public class LloydKMeans {
                     }
             }
         }
-
 
         return cluster_1.collect();
     }
