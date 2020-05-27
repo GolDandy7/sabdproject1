@@ -41,20 +41,16 @@ public class Query3 {
         String firstRow = raws.first();
         String[] colnames = firstRow.split(",");
 
-        //Definiamo un array di stringhe contente le date prese dai nomi delle colonne a partire dalla 4 colonna
+        //Si definisce un array contenente le date prese dai nomi delle colonne a partire dalla 4 colonna
         ArrayList<String> date_names = new ArrayList<>();
         for (int i = 4; i < colnames.length; i++)
             date_names.add(colnames[i]);
 
-        //Creiamo un RDD di stringhe eliminando la prima riga contente i nomi delle colonne
+        //RDD  eliminando la prima riga contente i nomi delle colonne
         JavaRDD<String> covid_data3 = raws.filter(x -> !x.equals(firstRow));
         JavaRDD<State> rdd_state = covid_data3.map(line -> StateParser.parseCSV2(line));
 
-
-        /*
-        Prendiamo i dati singolarmente ottenendo un pair rdd del tipo:
-         Tupla:<<Stato,Mese>,<Giorno,Valore>>
-         */
+        // RDD <<Stato,Mese>,<Giorno,Valore>>
         JavaPairRDD<Tuple2<String, Integer>, Tuple2<Integer, Integer>> pairRDD_total_flat = rdd_state.
                 flatMapToPair(new PairFlatMapFunction<State, Tuple2<String, Integer>, Tuple2<Integer, Integer>>() {
                     @Override
@@ -71,15 +67,10 @@ public class Query3 {
                     }
                 });
 
-        /*
-         raggruppiamo per chiave : <stato,mese> ottenendo un iterable di <giorno,valore>
-         */
+        //Si raggruppa per chiave : <Stato,Mese> ottenendo un iterable di <Giorno,Valore>
         JavaPairRDD<Tuple2<String, Integer>, Iterable<Tuple2<Integer, Integer>>> pair_rdd_sm = pairRDD_total_flat.groupByKey();
 
-        /*
-         dopo che abbiamo raggruppato per chiavi, otteniamo il trend generando un nuovo pair rdd cosi composto:
-         Tuple2:<<Mese>,<Trend,Nome dello stato>>
-         */
+        //RDD<<Mese>,<Trend,Nome dello stato>>
         JavaPairRDD<Integer, Tuple2<Double, String>> grouped = pair_rdd_sm.mapToPair(new PairFunction<Tuple2<Tuple2<String, Integer>, Iterable<Tuple2<Integer, Integer>>>, Integer, Tuple2<Double, String>>() {
             @Override
             public Tuple2<Integer, Tuple2<Double, String>>
@@ -95,20 +86,13 @@ public class Query3 {
             }
         });
 
-        /*
-        Una volta ottenuti i trend per ogni mese, raggruppiamo per chiave ottenendo un paird rdd composto da:
-        <Mese>,<Iterable<Trend,Nome dello stato>>
-         */
+        // RDD:<Mese,<Iterable<Trend,Nome dello stato>>
         JavaPairRDD<Integer, Iterable<Tuple2<Double, String>>> pair_grouped_month = grouped.groupByKey();
         Integer finalI;
 
-        //Definiamo un arrayList contente le tuple del tipo <Numero Mese, Lista di Tuple< Trend, Nome stato >> corrispettivi al mese
         ArrayList<Tuple2<Integer, ArrayList<Tuple2<Double, String>>>> list_top_per_month = new ArrayList<>();
 
-        /*
-        Calcoliamo i primi 50 stati in base al trend per ogni mese ottenendo una lista di liste composta da tuple cosi formate:
-        <mese,arraylist<trend,stato>>
-         */
+        //Calcolo dei primi 50 stati per trend per ogni mese
         for (int i = 1; i <= grouped.countByKey().size(); i++) {
             ArrayList<Tuple2<Double, String>> list_tuple = new ArrayList<>();
 
@@ -135,15 +119,7 @@ public class Query3 {
 
         }
 
-        /*
-         prendiamo la lista e la trasformiamo in un Rdd
-         */
         JavaRDD<Tuple2<Integer, ArrayList<Tuple2<Double, String>>>> rdd_from_parallelize = sc.parallelize(list_top_per_month);
-
-        /*
-        prendiamo il nostro RDD creato precedentemente e lo trasformiamo in pair rdd cosi ottenuto:
-        <mese><top 50 stati per mese>
-         */
 
         JavaPairRDD<Integer, Tuple2<Double, String>> pair_final = rdd_from_parallelize.
                 flatMapToPair(new PairFlatMapFunction<Tuple2<Integer, ArrayList<Tuple2<Double, String>>>, Integer, Tuple2<Double, String>>() {

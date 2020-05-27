@@ -83,7 +83,7 @@ public class LloydKMeans {
             //Raggruppamento per cluster
             JavaPairRDD<Integer, Iterable<Double>> pro= sum_trend.groupByKey();
 
-            //Creo un RDD con chiave cluster e valore  generico, necessario per il count di elementi che fanno parte del cluster
+            //RDD con chiave cluster e valore  generico, necessario per il count di elementi che fanno parte del cluster
             JavaPairRDD<Integer, Double> cluster_count = cluster_1.mapToPair(x -> new Tuple2<>(x._1(), 1.0));
             JavaPairRDD<Integer,Double> count=cluster_count.reduceByKey((a,b)->a+b);
 
