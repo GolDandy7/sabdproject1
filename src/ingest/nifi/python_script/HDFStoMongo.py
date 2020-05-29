@@ -12,8 +12,7 @@ def mongo_put(my_data_dict, collection_name, db_name):
     # Insert the dictionary into Mongo
     for item in my_data_dict:
         collection.insert(item)
-    for x in collection.find():
-        print collection.find()
+
 
 
 def get_db_param():
