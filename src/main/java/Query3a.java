@@ -43,7 +43,8 @@ public class Query3a {
                 .setMaster("local")
                 .setAppName("Query3a");
         JavaSparkContext sc = new JavaSparkContext(conf);
-        JavaRDD<String> raws = sc.textFile(pathToFile);
+        //JavaRDD<String> raws = sc.textFile(pathToFile);
+        JavaRDD<String> raws = sc.textFile(pathToHDFS);
 
         String firstRow = raws.first();
         String[] colnames = firstRow.split(",");

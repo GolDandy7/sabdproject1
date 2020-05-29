@@ -30,7 +30,9 @@ public class Query1 {
                 .setMaster("local")
                 .setAppName("Query1");
         JavaSparkContext sc = new JavaSparkContext(conf);
-        JavaRDD<String> rdd_covid_rows = sc.textFile(pathToFile);
+        //JavaRDD<String> rdd_covid_rows = sc.textFile(pathToFile);
+        JavaRDD<String> rdd_covid_rows = sc.textFile(pathToHDFS);
+
         //elimino la prima riga contentente l'header del csv
         String firstRow = rdd_covid_rows.first();
         JavaRDD<String> rdd_covid_rows_withoutFirst = rdd_covid_rows.filter(x -> !x.equals(firstRow));
@@ -115,8 +117,8 @@ public class Query1 {
                 map(x -> new String(x._1() + "," + x._2()._1()._1() + "," + x._2()._1()._2() + "," + x._2()._2()));
 
 
-        //toParse.saveAsTextFile(putToHDFS);
-        toParse.saveAsTextFile(putLocal);
+        toParse.saveAsTextFile(putToHDFS);
+        //toParse.saveAsTextFile(putLocal);
 
         sc.stop();
         endTime = System.nanoTime();

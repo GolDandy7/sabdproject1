@@ -44,7 +44,9 @@ public class Query2 {
                 .setMaster("local")
                 .setAppName("Query2");
         JavaSparkContext sc = new JavaSparkContext(conf);
-        JavaRDD<String> raws = sc.textFile(pathToFile);
+        //JavaRDD<String> raws = sc.textFile(pathToFile);
+        JavaRDD<String> raws = sc.textFile(pathToHDFS);
+
         /*
             1. eliminazione della prima riga del file contenente il nome delle colonne
             2. split della riga per trovare il nome delle colonne
@@ -61,7 +63,9 @@ public class Query2 {
 
 
         //RDD <State,Continent>
-        JavaRDD<String> rddregion = sc.textFile(pathregion);
+        //JavaRDD<String> rddregion = sc.textFile(pathregion);
+        JavaRDD<String> rddregion = sc.textFile(pathregionHDFS);
+
         String firstRowRegion = rddregion.first();
         JavaRDD<String> rdd_region_withoutFirst = rddregion.filter(x -> !x.equals(firstRowRegion));
         JavaPairRDD<String, String> rddPair_region = rdd_region_withoutFirst.
@@ -160,8 +164,8 @@ public class Query2 {
                 "," + x._1()._2() + "," + x._2()._1()._1()._1() + "," + x._2()._1()._1()._2() + "," + x._2()._1()._2() +
                 "," + x._2()._2()));
 
-        //toparse2.saveAsTextFile(putToHDFS);
-        toparse2.saveAsTextFile(putLocal);
+        toparse2.saveAsTextFile(putToHDFS);
+        //toparse2.saveAsTextFile(putLocal);
 
         sc.stop();
         endTime = System.nanoTime();

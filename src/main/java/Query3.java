@@ -36,7 +36,8 @@ public class Query3 {
                 .setMaster("local")
                 .setAppName("Query3a");
         JavaSparkContext sc = new JavaSparkContext(conf);
-        JavaRDD<String> raws = sc.textFile(pathToFile);
+        //JavaRDD<String> raws = sc.textFile(pathToFile);
+        JavaRDD<String> raws = sc.textFile(pathToHDFS);
 
         String firstRow = raws.first();
         String[] colnames = firstRow.split(",");
@@ -155,8 +156,8 @@ public class Query3 {
 
 
 
-        //toParse4.saveAsTextFile(putToHDFS);
-        toParse4.saveAsTextFile(putLocal);
+        toParse4.saveAsTextFile(putToHDFS);
+        //toParse4.saveAsTextFile(putLocal);
 
         //++++++++++++++++++++++++++ END ALGORITMO NAIVE LLOYD'S KMEANS+++++++++++++++++++++++++++++++++++++++
         sc.stop();
